@@ -43,13 +43,13 @@ const userSignup = async (req, res) => {
     try {
         const { name, email, password, roles } = req.body;
         if ([name, email, password].some((field) => field?.trim() === "")) {
-            res.status(400)
+            return res.status(400)
                 .json({ message: "all fields are compulsory" });
         }
         const user = await User.findOne({ email: email });
         if (user) {
             console.log(`user found with same email ${email}`);
-            res.status(404)
+            return res.status(404)
                 .json({ message: `user found with same email ${email} , please login instead` })
         }
         const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -66,17 +66,17 @@ const userSignup = async (req, res) => {
 
         const createdUser = await User.findById(newuser._id).select("-password -refreshToken");
         if (!createdUser) {
-            res.status(500)
+            return res.status(500)
                 .json({ message: `something went wrong` });
         }
         sendEmail('signup', newuser);
-        res.status(201)
+        return res.status(201)
             .json({ message: `user signup successful`, user: newuser });
 
 
     } catch (error) {
         console.log(error)
-        res.status(500)
+        return res.status(500)
             .json({ message: `some error occured` })
 
     }
